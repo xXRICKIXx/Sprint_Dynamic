@@ -5,7 +5,6 @@
 **Sprint:** 3  
 **Grupo:** Caring Hands — Hospital Sao Rafael (HSR)
 
-**Alunos:** Henrique Celso rm559687, Lucas Cortizo rm 559734
 
 ---
 
@@ -327,8 +326,6 @@ TAREFA 3 — Otimizacao de Agenda
 
 | Nome | RM |
 |---|---|
-| [Nome do Integrante 1] | [RM] |
-| [Nome do Integrante 2] | [RM] |
-| [Nome do Integrante 3] | [RM] |
-| [Nome do Integrante 4] | [RM] |
-| [Nome do Integrante 5] | [RM] |
+| [Henrique Celso] | [559687] |
+| [Lucas Cortizo] | [559734] |
+
