@@ -2,10 +2,6 @@
 ============================================================
  CARING HANDS CRM — Sprint 3
  Recursao e Memorizacao no CRM
-
- Disciplina : Computational Thinking Using Python
- Instituicao: FIAP
- Grupo      : Caring Hands
 ============================================================
 
 Modulo principal contendo:
@@ -569,10 +565,7 @@ def demo_tarefa3() -> None:
 # ================================================================
 
 if __name__ == "__main__":
-    print("============================================================")
-    print(" CARING HANDS CRM — Recursao e Memorizacao")
-    print(" Hospital Sao Rafael (HSR) — Sprint 3 — FIAP")
-    print("============================================================")
+   
 
     demo_tarefa1()
     demo_tarefa2()
