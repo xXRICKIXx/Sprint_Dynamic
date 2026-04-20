@@ -93,14 +93,13 @@ def verificar_duplicidade_recursiva(novo, cadastros, i=0, campos=None):
 
 Logica:
 
-indice >= len(lista)
-  -> retorna (0, None)
+indice >= tamanho -> retorna (0, None)
 
-cpf igual
-  -> retorna (1, lead)
+cpf igual -> retorna (1, lead)
 
-2 campos iguais
-  -> retorna (1, lead)
+2 campos iguais -> retorna (1, lead)
+
+senao -> chamada recursiva (i + 1)
 
 senao
   -> chamada recursiva (i + 1)
@@ -118,6 +117,7 @@ Retorno:
 
 1 = duplicata
 0 = nao duplicata
+
 Tarefa 2
 Memorizacao (Cache)
 
@@ -129,6 +129,7 @@ Uso de dicionario para armazenar resultados.
 
 cache = {}
 chave = (id_novo, id_existente)
+
 if chave in cache:
     return cache[chave]
 
@@ -206,6 +207,8 @@ Inicio  Fim
 09:00   10:00
 ...
 Total: 10
+
+
 Integrantes
 Nome	RM
 Henrique Celso	559687
