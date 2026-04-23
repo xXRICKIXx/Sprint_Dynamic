@@ -1,9 +1,8 @@
 # Caring Hands CRM — Recursao e Memorizacao
 
 **Disciplina:** Dynamic Programing
-**Instituicao:** FIAP  
 **Sprint:** 4
-**Grupo:** Caring Hands — Hospital Sao Rafael (HSR)
+**Grupo:** Caring Hands — Hospital Sao Rafael 
 
 ---
 
