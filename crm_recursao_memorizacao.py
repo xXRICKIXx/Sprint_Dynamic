@@ -1,10 +1,13 @@
+from os import path
 from functools import lru_cache
 import time
+import heapq
+
 
 
 """
 ============================================================
-CARING HANDS CRM — SPRINT 3
+CARING HANDS CRM — SPRINT 4
 VERSAO SIMPLIFICADA
 ============================================================
 """
@@ -254,6 +257,64 @@ def exibir_agenda(slots, duracao):
     print("Total:", len(slots))
 
 
+
+# ================================================================
+# TAREFA 4 — Grafo
+# ================================================================
+
+grafo = {
+    'Entrada': {'Visitante': 1000},
+    'Visitante': {'Lead': 200},
+    'Lead': {'Qualificado': 90, 'Perdidos': 110},
+    'Qualificado': {'Cliente': 30},
+    'Perdidos': {},
+    'Cliente': {}
+}
+
+# ================================================================
+# TAREFA 5 — Dijkstra
+# ================================================================
+
+def dijkstra(grafo, start, end):
+    dist = {node: float('inf') for node in grafo}
+    dist[start] = 0
+
+    pq = [(0, start, [start])] 
+
+    while pq:
+        cost, node, path = heapq.heappop(pq) 
+
+        if node == end:
+            return cost, path
+
+        if cost > dist[node]:
+            continue
+
+        for neighbor, weight in grafo[node].items():
+            new_cost = cost + weight
+            new_path = path + [neighbor] 
+
+            if new_cost < dist.get(neighbor, float('inf')):
+                dist[neighbor] = new_cost
+                heapq.heappush(pq, (new_cost, neighbor, new_path))
+
+    return float('inf'), [] 
+
+cost, path = dijkstra(grafo, 'Entrada', 'Cliente')
+print("Menor custo:", cost) 
+print("Melhor Caminho:", ", ".join(path)) 
+
+#Por que esse fluxo é mais eficiente?
+#Esse fluxo é considerado mais eficiente porque:
+#O algoritmo sempre escolhe as transições com menor custo parcial
+#A soma total dos pesos (custos) ao longo desse caminho é a menor possível
+#Não existe outro caminho alternativo até o nó “Cliente” com custo inferior
+#Assim, o Dijkstra garante que esse é o caminho ótimo, ou seja, o mais eficiente dentro das condições modeladas no grafo.
+
+#Conclusão:
+#Portanto, o caminho encontrado pelo algoritmo é o mais eficiente 
+#porque minimiza o custo total para levar um lead até a conversão em cliente, respeitando a estrutura do grafo definido.
+
 # ================================================================
 # TESTES
 # ================================================================
@@ -301,15 +362,11 @@ def demo3():
 
     exibir_agenda(agenda, 60)
 
-
 # ================================================================
-# MAIN
 # ================================================================
 
-if __name__ == "__main__":
+demo1()
+demo2()
+demo3()
 
-    demo1()
-    demo2()
-    demo3()
-
-    print("\nFim")
+print("\nFim")
