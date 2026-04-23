@@ -1,8 +1,8 @@
 # Caring Hands CRM — Recursao e Memorizacao
 
-**Disciplina:** Dynamic Programming  
+**Disciplina:** Dynamic Programing
 **Instituicao:** FIAP  
-**Sprint:** 3  
+**Sprint:** 4
 **Grupo:** Caring Hands — Hospital Sao Rafael (HSR)
 
 ---
@@ -14,6 +14,8 @@
 - [Tarefa 1 — Verificacao Recursiva de Duplicidade](#tarefa-1)
 - [Tarefa 2 — Memorizacao](#tarefa-2)
 - [Tarefa 3 — Otimizacao de Agenda](#tarefa-3)
+- [Tarefa 4 — Grafo](#tarefa-4)
+- [Tarefa 5 — Dijkstra](#tarefa-5)
 - [Como Executar](#como-executar)
 - [Exemplos de Saida](#exemplos-de-saida)
 
@@ -69,11 +71,17 @@ crm_recursao_memorizacao.py
 │ ├── minutos_para_hora(...)
 │ └── exibir_agenda(...)
 │
-└── TESTES
-├── demo1()
-├── demo2()
-└── demo3()
-
+├── TAREFA 4 - GRAFO
+│   ├── grafo
+│
+├── TAREFA 5 DIJKSTRA
+│    ├── dijkstra(grafo, start, end)
+│
+└── ZONA DE TESTES
+    ├── demo_tarefa1()
+    ├── demo_tarefa2()
+    └── demo_tarefa3()
+```
 
 ---
 
@@ -142,8 +150,104 @@ melhora desempenho
 
 Exemplo:
 
-1a execucao -> MISS (calcula)
-2a execucao -> HIT (usa cache)
+| Duracao | Consultas no dia (08:00-17:00) |
+|---------|-------------------------------|
+| 30 min  | 19 consultas                  |
+| 45 min  | 10 consultas                  |
+| 60 min  | 10 consultas                  |
+| 90 min  |  7 consultas                  |
+
+
+## Tarefa 4
+
+## Modelagem de Fluxo com grafo
+
+**Problema:** No CRM do Hospital São Rafael, o fluxo de leads segue múltiplas etapas até a conversão em cliente. É necessário representar esse processo de forma estruturada para análise e otimização.
+
+**Solução:** Foi utilizado um grafo direcionado, onde:
+Nós (vértices) representam etapas do funil
+Arestas representam transições entre etapas
+Pesos representam valores associados (ex: volume, custo ou tempo)
+
+```python
+grafo = {
+    'Entrada': {'Visitante': 1000},
+    'Visitante': {'Lead': 200},
+    'Lead': {'Qualificado': 90, 'Perdidos': 110},
+    'Qualificado': {'Cliente': 30},
+    'Perdidos': {},
+    'Cliente': {}
+}
+```
+**Interpretação: ** Esse grafo modela o funil de leads:
+```
+Entrada → Visitante → Lead → Qualificado → Cliente
+```
+Também permite caminhos alternativos (ex: leads perdidos).
+
+**Benefícios:**
+Visualização clara do funil
+Identificação de gargalos
+Base para aplicação de algoritmos (como Dijkstra)
+
+
+## Tarefa 5
+
+**Algoritmo Dijkstra**
+
+**Problema:** Dado o grafo de leads, é necessário encontrar o caminho mais eficiente da entrada até a conversão em cliente.
+
+**Solução:** Foi implementado o algoritmo de Dijkstra para encontrar o menor caminho (menor custo acumulado) entre dois nós.
+```python
+def dijkstra(grafo, start, end):
+    dist = {node: float('inf') for node in grafo}
+    dist[start] = 0
+
+    pq = [(0, start, [start])]
+
+    while pq:
+        cost, node, path = heapq.heappop(pq)
+
+        if node == end:
+            return cost, path
+
+        if cost > dist[node]:
+            continue
+
+        for neighbor, weight in grafo[node].items():
+            new_cost = cost + weight
+            new_path = path + [neighbor]
+
+            if new_cost < dist.get(neighbor, float('inf')):
+                dist[neighbor] = new_cost
+                heapq.heappush(pq, (new_cost, neighbor, new_path))
+
+    return float('inf'), []
+```
+**Interpretação do Resultado:** Após executar o algoritmo:
+```
+Menor caminho:
+Entrada → Visitante → Lead → Qualificado → Cliente
+
+Custo total:
+1320
+```
+**Explicação:** O algoritmo percorre o grafo acumulando os pesos das arestas e seleciona o caminho com menor custo total.
+Por que esse fluxo é mais eficiente?
+É o único caminho que leva até “Cliente”
+Possui o menor custo acumulado possível
+O algoritmo garante que não existe caminho melhor
+
+**Conclusão:**
+A modelagem com grafos e o uso do Dijkstra permitiram:
+
+Representar o funil de leads de forma estruturada
+Aplicar conceitos de algoritmos clássicos
+Analisar caminhos de conversão
+
+Essas técnicas complementam as tarefas anteriores de recursão e memorização, trazendo uma abordagem mais analítica e orientada a otimização dentro do CRM.
+
+---
 
 Metricas:
 
@@ -199,7 +303,17 @@ T2
 
 {'total': 30, 'hits': 10, 'misses': 20, 'taxa': '33%', 'itens': 20}
 
-T3
+  Tempo 1a chamada : 0.0104 ms
+  Tempo 2a chamada : 0.0005 ms   <- cache ativo
+
+TAREFA 5 - Dijkstra
+
+  Menor caminho:
+  Entrada → Visitante → Lead → Qualificado → Cliente
+
+  Custo total:
+  1320
+```
 
 Agenda
 Inicio  Fim
@@ -209,7 +323,9 @@ Inicio  Fim
 Total: 10
 
 
-Integrantes
-Nome	RM
-Henrique Celso	559687
-Lucas Cortizo	559734
+| Nome | RM |
+|---|---|
+| [Henrique Celso] | [559687] |
+| [Lucas Cortizo] | [559734] |
+| [Nome do Integrante 3] | [RM] |
+| [Nome do Integrante 4] | [RM] |
