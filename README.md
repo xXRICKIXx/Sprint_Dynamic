@@ -28,12 +28,8 @@ Modelar e resolver problemas do CRM do Hospital Sao Rafael usando **recursao** e
 1. Verificar duplicidade de leads
 2. Evitar recalculo de comparacoes repetidas
 3. Otimizar encaixe de consultas na agenda
-
-Implementacao simplificada:
-- sem uso de `bool` (utiliza 0 e 1)
-- sem `Optional`
-- sem bibliotecas externas (`re`, `unicodedata`)
-
+4. Modelar o fluxo do lead com grafos
+5. Encontar o melhor caminho e menor custo com dijkstra 
 ---
 
 ## Estrutura do Projeto
@@ -47,35 +43,36 @@ crm-recursao/
 ### Estrutura interna do modulo
 
 
+```
 crm_recursao_memorizacao.py
 │
 ├── UTILITARIOS
-│ ├── normalizar(texto)
-│ ├── limpar_telefone(tel)
-│ └── limpar_cpf(cpf)
+│   ├── normalizar(texto)
+│   ├── limpar_telefone(tel)
+│   └── limpar_cpf(cpf)
 │
 ├── ESTRUTURA DE DADOS
-│ └── class Lead
+│   └── class Lead
 │
 ├── TAREFA 1 — RECURSAO
-│ └── verificar_duplicidade_recursiva(...)
+│   └── verificar_duplicidade_recursiva(...)
 │
 ├── TAREFA 2 — CACHE
-│ ├── comparar_com_cache(...)
-│ ├── verificar_com_cache(...)
-│ ├── stats_cache()
-│ └── limpar_cache()
+│   ├── comparar_com_cache(...)
+│   ├── verificar_com_cache(...)
+│   ├── stats_cache()
+│   └── limpar_cache()
 │
 ├── TAREFA 3 — AGENDA
-│ ├── melhor_agenda(...)
-│ ├── minutos_para_hora(...)
-│ └── exibir_agenda(...)
+│   ├── melhor_agenda(...)
+│   ├── minutos_para_hora(...)
+│   └── exibir_agenda(...)
 │
-├── TAREFA 4 - GRAFO
-│   ├── grafo
+├── TAREFA 4 — GRAFO
+│   └── grafo
 │
-├── TAREFA 5 DIJKSTRA
-│    ├── dijkstra(grafo, start, end)
+├── TAREFA 5 — DIJKSTRA
+│   └── dijkstra(grafo, start, end)
 │
 └── ZONA DE TESTES
     ├── demo_tarefa1()
