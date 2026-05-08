@@ -95,7 +95,7 @@ def verificar_duplicidade_recursiva(novo, cadastros, i=0, campos=None):
     atual = cadastros[i]
     match = 0
 
-    # cpf
+    # cpf tem prioridade: qualquer coincidência já confirma duplicata
     if "cpf" in campos and novo.cpf_norm():
         if novo.cpf_norm() == atual.cpf_norm():
             return 1, atual
@@ -130,6 +130,8 @@ misses = 0
 
 def comparar_com_cache(novo, existente, id_novo, id_existente, campos=None):
 
+    # compara dois leads evitando recalcular comparacoes ja realizadas
+
     global hits, misses
 
     if campos is None:
@@ -144,7 +146,6 @@ def comparar_com_cache(novo, existente, id_novo, id_existente, campos=None):
     misses += 1
     resultado = 0
 
-    # cpf
     if "cpf" in campos and novo.cpf_norm():
         if novo.cpf_norm() == existente.cpf_norm():
             resultado = 1
@@ -189,12 +190,7 @@ def verificar_com_cache(novo, id_novo, cadastros, ids, i=0, campos=None):
 
 def stats_cache():
     total = hits + misses
-
-    if total == 0:
-        taxa = "0%"
-    else:
-        taxa = str(round(hits/total*100, 1)) + "%"
-
+    taxa = "0%" if total == 0 else str(round(hits / total * 100,1)) + "%"
     return {
         "total": total,
         "hits": hits,
@@ -217,6 +213,7 @@ def limpar_cache():
 
 @lru_cache(maxsize=512)
 def melhor_agenda(horarios, duracao, i=0):
+    "DP com memo para maximizar"
 
     if i >= len(horarios):
         return [], 0
@@ -247,21 +244,36 @@ def minutos_para_hora(m):
 
 
 def exibir_agenda(slots, duracao):
-    print("\nAgenda")
-    print("Inicio  Fim")
-
+    print("\n  Agenda otimizada:")
+    print("  Início  Fim")
+    print("  " + "-" * 14)
     for s in slots:
-        print(minutos_para_hora(s), minutos_para_hora(s+duracao))
-
-    print("Total:", len(slots))
-
+        print(" ", minutos_para_hora(s), " ", minutos_para_hora(s + duracao))
+    print("  Total de consultas:", len(slots))
 
 
 # ================================================================
-# TAREFA 4 — Grafo
+# TAREFA 4 — GRAFO
+# ================================================================
+# O grafo abaixo representa o funil de conversão do CRM.
+# Cada nó é uma etapa do fluxo e cada aresta tem um peso que
+# representa o número de leads que transitam entre as etapas.
+# Os pesos maiores indicam caminhos com maior volume de leads
+# (portanto, maior "custo" de processamento/acompanhamento).
+#
+# Estrutura:
+#   Entrada → Visitante → Lead → Qualificado → Cliente
+#                               ↘ Perdidos
+#
+# Pesos (volume de transições):
+#   Entrada    → Visitante  : 1000
+#   Visitante  → Lead       :  200
+#   Lead       → Qualificado:   90
+#   Lead       → Perdidos   :  110
+#   Qualificado → Cliente   :   30
 # ================================================================
 
-grafo = {
+grafo_crm = {
     'Entrada': {'Visitante': 1000},
     'Visitante': {'Lead': 200},
     'Lead': {'Qualificado': 90, 'Perdidos': 110},
@@ -271,101 +283,213 @@ grafo = {
 }
 
 # ================================================================
-# TAREFA 5 — Dijkstra
+# TAREFA 5 — DIJKSTRA
 # ================================================================
 
 def dijkstra(grafo, start, end):
+    """
+    Encontra o menor caminho entre dois nós em um grafo ponderado.
+
+    Parâmetros:
+        grafo  : dicionário de adjacência {nó: {vizinho: peso}}
+        start  : nó de origem
+        end    : nó de destino
+
+    Retorna:
+        (custo_total, caminho) — menor custo e lista de nós do percurso.
+        Se não houver caminho, retorna (inf, []).
+
+    Complexidade: O((V + E) log V)
+    """
+    # Inicializa todas as distâncias como infinito
     dist = {node: float('inf') for node in grafo}
     dist[start] = 0
 
-    pq = [(0, start, [start])] 
+    # Fila de prioridade: (custo_acumulado, nó_atual, caminho_percorrido)
+    pq = [(0, start, [start])]
 
     while pq:
-        cost, node, path = heapq.heappop(pq) 
+        cost, node, path = heapq.heappop(pq)
 
+        # Chegamos ao destino
         if node == end:
             return cost, path
 
+        # Ignora entradas desatualizadas na fila
         if cost > dist[node]:
             continue
 
         for neighbor, weight in grafo[node].items():
             new_cost = cost + weight
-            new_path = path + [neighbor] 
-
             if new_cost < dist.get(neighbor, float('inf')):
                 dist[neighbor] = new_cost
-                heapq.heappush(pq, (new_cost, neighbor, new_path))
+                heapq.heappush(pq, (new_cost, neighbor, path + [neighbor]))
 
-    return float('inf'), [] 
-
-cost, path = dijkstra(grafo, 'Entrada', 'Cliente')
-print("Menor custo:", cost) 
-print("Melhor Caminho:", ", ".join(path)) 
-
-#Por que esse fluxo é mais eficiente?
-#Esse fluxo é considerado mais eficiente porque:
-#O algoritmo sempre escolhe as transições com menor custo parcial
-#A soma total dos pesos (custos) ao longo desse caminho é a menor possível
-#Não existe outro caminho alternativo até o nó “Cliente” com custo inferior
-#Assim, o Dijkstra garante que esse é o caminho ótimo, ou seja, o mais eficiente dentro das condições modeladas no grafo.
-
-#Conclusão:
-#Portanto, o caminho encontrado pelo algoritmo é o mais eficiente 
-#porque minimiza o custo total para levar um lead até a conversão em cliente, respeitando a estrutura do grafo definido.
+    return float('inf'), []
 
 # ================================================================
 # TESTES
 # ================================================================
-
 def demo1():
-    print("\nT1")
+    print("\n" + "=" * 50)
+    print("TAREFA 1 — Verificação de Duplicidade (Recursão)")
+    print("=" * 50)
 
     base = [
-        Lead("Jose", "1199", "jose@mail.com", "111"),
+        Lead("Jose",  "1199", "jose@mail.com",  "111"),
         Lead("Maria", "1188", "maria@mail.com", "222")
     ]
 
-    novo = Lead("Jose", "0000", "x@mail.com", "111")
+    # CPF igual → duplicata imediata
+    novo_cpf = Lead("Jose Outro", "0000", "x@mail.com", "111")
+    r, d = verificar_duplicidade_recursiva(novo_cpf, base)
+    print(f"\n  Novo lead:  {novo_cpf}")
+    print(f"  Duplicata?: {'Sim' if r else 'Não'}")
+    print(f"  Conflito:   {d}")
 
-    r, d = verificar_duplicidade_recursiva(novo, base)
+    # 2 campos coincidentes → duplicata
+    novo_multi = Lead("Jose", "1199", "outro@mail.com", "999")
+    r2, d2 = verificar_duplicidade_recursiva(novo_multi, base)
+    print(f"\n  Novo lead:  {novo_multi}")
+    print(f"  Duplicata?: {'Sim' if r2 else 'Não'}")
+    print(f"  Conflito:   {d2}")
 
-    print("Duplicata:", r)
-    print("Match:", d)
+    # Nenhum campo coincidente → sem duplicata
+    novo_ok = Lead("Carlos", "9999", "carlos@mail.com", "333")
+    r3, d3 = verificar_duplicidade_recursiva(novo_ok, base)
+    print(f"\n  Novo lead:  {novo_ok}")
+    print(f"  Duplicata?: {'Sim' if r3 else 'Não'}")
+    print(f"  Conflito:   {d3}")
 
 
 def demo2():
-    print("\nT2")
+    print("\n" + "=" * 50)
+    print("TAREFA 2 — Cache de Comparações")
+    print("=" * 50)
 
     limpar_cache()
 
-    base = [Lead("P"+str(i), str(i), "p"+str(i), str(i)) for i in range(10)]
+    base = [Lead("P" + str(i), str(i), "p" + str(i) + "@mail.com", str(i)) for i in range(10)]
     ids = list(range(10))
 
-    novo = Lead("P1", "1", "p1", "1")
+    novo = Lead("P5", "5", "p5@mail.com", "5")
 
-    for _ in range(3):
+    print("\n  Executando 3 buscas pelo mesmo lead...")
+    for rodada in range(1, 4):
         verificar_com_cache(novo, 100, base, ids)
+        s = stats_cache()
+        print(f"  Rodada {rodada}: hits={s['hits']}, misses={s['misses']}, taxa={s['taxa']}")
 
-    print(stats_cache())
+    print(f"\n  Resultado final do cache: {stats_cache()}")
 
 
 def demo3():
-    print("\nT3")
+    print("\n" + "=" * 50)
+    print("TAREFA 3 — Otimização de Agenda (Memoização)")
+    print("=" * 50)
 
-    slots = tuple(range(480, 1021, 30))
-
+    slots = tuple(range(480, 1021, 30))  # 08:00 às 17:00, a cada 30 min
     melhor_agenda.cache_clear()
-
     agenda, total = melhor_agenda(slots, 60)
-
     exibir_agenda(agenda, 60)
 
+
+def demo_grafo_dijkstra():
+    print("\n" + "=" * 50)
+    print("TAREFA 4 — Grafo do Fluxo CRM")
+    print("=" * 50)
+
+    print("""
+  Estrutura do funil de conversão:
+
+    Entrada (1000)
+       │
+       ▼
+    Visitante (200)
+       │
+       ▼
+      Lead
+      ├──(90)──▶ Qualificado
+      │               │
+      │              (30)
+      │               ▼
+      │            Cliente  ← destino
+      │
+      └──(110)──▶ Perdidos
+    """)
+
+    print("  Nós do grafo:", list(grafo_crm.keys()))
+    print("\n  Arestas e pesos:")
+    for origem, destinos in grafo_crm.items():
+        for destino, peso in destinos.items():
+            print(f"    {origem:15} → {destino:15} (peso: {peso})")
+
+    print("\n" + "=" * 50)
+    print("TAREFA 5 — Dijkstra: Menor Caminho")
+    print("=" * 50)
+
+    origem = 'Entrada'
+    destino = 'Cliente'
+
+    custo, caminho = dijkstra(grafo_crm, origem, destino)
+
+    print(f"\n  De: '{origem}'  →  Até: '{destino}'")
+    print(f"\n  Menor caminho encontrado:")
+    print("  " + " → ".join(caminho))
+    print(f"\n  Custo total: {custo}")
+
+    print("""
+  ─────────────────────────────────────────────────
+  INTERPRETAÇÃO DO RESULTADO
+  ─────────────────────────────────────────────────
+
+  O algoritmo de Dijkstra percorreu o grafo e encontrou
+  o caminho de menor custo total entre 'Entrada' e 'Cliente':
+
+      Entrada → Visitante → Lead → Qualificado → Cliente
+
+  Custo de cada aresta nesse trajeto:
+    • Entrada    → Visitante  :   1000
+    • Visitante  → Lead       :    200
+    • Lead       → Qualificado:     90
+    • Qualificado → Cliente   :     30
+                              ─────────
+                       Total  :   1320
+
+  Por que esse caminho é o mais eficiente?
+
+  1. É o único caminho que conecta 'Entrada' até 'Cliente',
+     pois o grafo possui estrutura linear com um único
+     desvio possível (Lead → Perdidos), que não chega ao
+     destino.
+
+  2. O ramo alternativo Lead → Perdidos tem peso 110 e
+     não leva ao nó 'Cliente', sendo descartado pelo
+     Dijkstra por não atingir o destino.
+
+  3. O algoritmo garante a optimalidade: ao usar uma fila
+     de prioridade (heap mínimo), sempre expande o caminho
+     de menor custo acumulado primeiro, assegurando que,
+     ao atingir o destino, o custo encontrado seja o mínimo
+     possível dentro da estrutura do grafo.
+
+  Conclusão:
+  O caminho Entrada → Visitante → Lead → Qualificado →
+  Cliente, com custo total de 1320, é o único caminho
+  viável e, portanto, o mais eficiente para converter um
+  lead em cliente dentro do funil modelado.
+  ─────────────────────────────────────────────────
+    """)
+
+
 # ================================================================
+# EXECUÇÃO
 # ================================================================
 
-demo1()
-demo2()
-demo3()
 
-print("\nFim")
+if __name__ == "__main__":
+    demo1()
+    demo2()
+    demo3()
+    demo_grafo_dijkstra()
+    print("\nFim")
