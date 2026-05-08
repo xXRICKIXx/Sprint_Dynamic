@@ -325,5 +325,5 @@ Total: 10
 |---|---|
 | [Henrique Celso] | [559687] |
 | [Lucas Cortizo] | [559734] |
-| [Nome do Integrante 3] | [RM] |
-| [Nome do Integrante 4] | [RM] |
+| [Gabriela Queiroga] | [560035] |
+| [Maria Eduarda Ferrés] | [560418] |
