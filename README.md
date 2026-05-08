@@ -26,6 +26,7 @@
   - [Tarefa 3 — Otimização de Agenda (Memoização)](#tarefa-3--otimização-de-agenda-memoização)
   - [Tarefa 4 — Grafo do Fluxo CRM](#tarefa-4--grafo-do-fluxo-crm)
   - [Tarefa 5 — Dijkstra: Menor Caminho no Funil](#tarefa-5--dijkstra-menor-caminho-no-funil)
+  - [Tarefa 6 — Comparação de Todos os Caminhos](#tarefa-6--comparação-de-todos-os-caminhos)
 - [Saída Esperada](#saída-esperada)
 - [Decisões Técnicas](#decisões-técnicas)
 
