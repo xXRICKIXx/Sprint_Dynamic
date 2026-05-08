@@ -6,6 +6,13 @@
 
 **Grupo:** Caring Hands — Hospital Sao Rafael 
 
+| Nome | RM |
+|---|---|
+| [Henrique Celso] | [559687] |
+| [Lucas Cortizo] | [559734] |
+| [Gabriela Queiroga] | [560035] |
+| [Maria Eduarda Ferrés] | [560418] |
+
 ---
 
 ## Sumario
@@ -321,9 +328,4 @@ Inicio  Fim
 Total: 10
 
 
-| Nome | RM |
-|---|---|
-| [Henrique Celso] | [559687] |
-| [Lucas Cortizo] | [559734] |
-| [Gabriela Queiroga] | [560035] |
-| [Maria Eduarda Ferrés] | [560418] |
+
