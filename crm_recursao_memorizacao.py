@@ -328,6 +328,67 @@ def dijkstra(grafo, start, end):
     return float('inf'), []
 
 # ================================================================
+# TAREFA 6 — COMPARAÇÃO DE CAMINHOS
+# ================================================================
+ 
+def todos_os_caminhos(grafo, start, end, caminho=None):
+    """
+    Encontra todos os caminhos possíveis entre dois nós usando DFS.
+ 
+    Parâmetros:
+        grafo   : dicionário de adjacência {nó: {vizinho: peso}}
+        start   : nó de origem
+        end     : nó de destino
+        caminho : caminho acumulado na recursão (uso interno)
+ 
+    Retorna:
+        Lista de tuplas (custo_total, caminho) para cada rota encontrada.
+    """
+    if caminho is None:
+        caminho = [start]
+ 
+    if start == end:
+        custo = 0
+        for i in range(len(caminho) - 1):
+            custo += grafo[caminho[i]][caminho[i + 1]]
+        return [(custo, list(caminho))]
+ 
+    resultados = []
+    for vizinho in grafo[start]:
+        if vizinho not in caminho:  # evita ciclos
+            resultados += todos_os_caminhos(grafo, vizinho, end, caminho + [vizinho])
+ 
+    return resultados
+ 
+ 
+def comparar_caminhos(grafo, start, end):
+    """
+    Lista todos os caminhos entre start e end, ordenados pelo custo,
+    destacando o caminho mínimo encontrado pelo Dijkstra.
+    """
+    caminhos = todos_os_caminhos(grafo, start, end)
+ 
+    if not caminhos:
+        print(f"\n  Nenhum caminho encontrado entre '{start}' e '{end}'.")
+        return
+ 
+    caminhos.sort(key=lambda x: x[0])
+    melhor_custo = caminhos[0][0]
+ 
+    print(f"\n  Todos os caminhos de '{start}' até '{end}':\n")
+    print(f"  {'#':<4} {'Caminho':<50} {'Custo':>6}  ")
+    print("  " + "-" * 65)
+ 
+    for i, (custo, caminho) in enumerate(caminhos, 1):
+        rota = " → ".join(caminho)
+        destaque = "  ◀ MENOR CAMINHO" if custo == melhor_custo else ""
+        print(f"  {i:<4} {rota:<50} {custo:>6}{destaque}")
+ 
+    print("  " + "-" * 65)
+    print(f"\n  Total de caminhos encontrados: {len(caminhos)}")
+
+
+# ================================================================
 # TESTES
 # ================================================================
 def demo1():
@@ -480,6 +541,11 @@ def demo_grafo_dijkstra():
   lead em cliente dentro do funil modelado.
   ─────────────────────────────────────────────────
     """)
+
+    print("=" * 50)
+    print("TAREFA 6 — Comparação de Todos os Caminhos")
+    print("=" * 50)
+    comparar_caminhos(grafo_crm, origem, destino)
 
 
 # ================================================================
