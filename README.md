@@ -165,122 +165,6 @@ print(stats_cache())
 
 ---
 
-
-## Tarefa 5
-
-**Algoritmo Dijkstra**
-
-**Problema:** Dado o grafo de leads, é necessário encontrar o caminho mais eficiente da entrada até a conversão em cliente.
-
-**Solução:** Foi implementado o algoritmo de Dijkstra para encontrar o menor caminho (menor custo acumulado) entre dois nós.
-```python
-def dijkstra(grafo, start, end):
-    dist = {node: float('inf') for node in grafo}
-    dist[start] = 0
-
-    pq = [(0, start, [start])]
-
-    while pq:
-        cost, node, path = heapq.heappop(pq)
-
-        if node == end:
-            return cost, path
-
-        if cost > dist[node]:
-            continue
-
-        for neighbor, weight in grafo[node].items():
-            new_cost = cost + weight
-            new_path = path + [neighbor]
-
-            if new_cost < dist.get(neighbor, float('inf')):
-                dist[neighbor] = new_cost
-                heapq.heappush(pq, (new_cost, neighbor, new_path))
-
-    return float('inf'), []
-```
-**Interpretação do Resultado:** Após executar o algoritmo:
-```
-Menor caminho:
-Entrada → Visitante → Lead → Qualificado → Cliente
-
-Custo total:
-1320
-```
-**Explicação:** O algoritmo percorre o grafo acumulando os pesos das arestas e seleciona o caminho com menor custo total.
-Por que esse fluxo é mais eficiente?
-É o único caminho que leva até “Cliente”
-Possui o menor custo acumulado possível
-O algoritmo garante que não existe caminho melhor
-
-**Conclusão:**
-A modelagem com grafos e o uso do Dijkstra permitiram:
-
-Representar o funil de leads de forma estruturada
-Aplicar conceitos de algoritmos clássicos
-Analisar caminhos de conversão
-
-Essas técnicas complementam as tarefas anteriores de recursão e memorização, trazendo uma abordagem mais analítica e orientada a otimização dentro do CRM.
-
----
-
-Metricas:
-
-{
-  "total": 20,
-  "hits": 5,
-  "misses": 15,
-  "taxa": "25%",
-  "itens": 15
-}
-Tarefa 3
-Otimizacao de Agenda
-
-Problema:
-Maximizar numero de consultas sem conflito de horario.
-
-Entrada:
-
-lista de horarios (em minutos)
-duracao da consulta
-
-Solucao:
-Recursao + lru_cache
-
-@lru_cache(maxsize=512)
-def melhor_agenda(horarios, duracao, i=0):
-
-Logica:
-
-1. encaixar horario atual
-2. pular horario
-3. escolher melhor resultado
-
-Exemplo:
-
-Duracao	Total
-30 min	19
-60 min	10
-90 min	7
-Como Executar
-Requisitos
-Python 3.x
-Nenhuma biblioteca externa
-Execucao
-python crm_recursao_memorizacao.py
-Exemplos de Saida
-T1
-
-Duplicata: 1
-Match: Lead(Jose, 111)
-
-T2
-
-{'total': 30, 'hits': 10, 'misses': 20, 'taxa': '33%', 'itens': 20}
-
-  Tempo 1a chamada : 0.0104 ms
-  Tempo 2a chamada : 0.0005 ms   <- cache ativo
-
 ### Tarefa 3 — Otimização de Agenda (Memoização)
 
 **Função:** `melhor_agenda(horarios, duracao, i)` — decorada com `@lru_cache`
@@ -377,6 +261,43 @@ custo, caminho = dijkstra(grafo_crm, 'Entrada', 'Cliente')
 
 ---
 
+### Tarefa 6 — Comparação de Todos os Caminhos
+
+**Funções:** `todos_os_caminhos(grafo, start, end)`, `comparar_caminhos(grafo, start, end)`
+
+Mapeia **todos os caminhos possíveis** entre dois nós usando busca em profundidade (DFS) e os exibe ordenados por custo, destacando o menor.
+
+```python
+comparar_caminhos(grafo_crm, 'Entrada', 'Cliente')
+
+# Saída:
+# #    Caminho                                            Custo
+# -----------------------------------------------------------------
+# 1    Entrada → Visitante → Lead → Qualificado → Cliente  1320  ◀ MENOR CAMINHO
+# -----------------------------------------------------------------
+# Total de caminhos encontrados: 1
+```
+
+**Como funciona `todos_os_caminhos()`:**
+
+A função usa DFS recursivo acumulando o caminho percorrido. A cada nó visitado, verifica se chegou ao destino — se sim, calcula o custo somando os pesos das arestas percorridas. Caso contrário, expande os vizinhos ainda não visitados (evitando ciclos).
+
+```
+todos_os_caminhos(grafo, 'Entrada', 'Cliente')
+  └── visita Visitante
+        └── visita Lead
+              ├── visita Qualificado
+              │     └── visita Cliente → DESTINO → custo = 1320 ✓
+              └── visita Perdidos
+                    └── sem vizinhos → sem caminho para Cliente ✗
+```
+
+**Por que o resultado mostra apenas 1 caminho?**
+
+O nó `Perdidos` não possui arestas de saída, tornando-se um beco sem saída. Qualquer rota que passe por ele nunca alcança `Cliente`, sendo descartada naturalmente pela recursão. Isso confirma e evidencia visualmente a conclusão do Dijkstra.
+
+---
+
 ## Saída Esperada
 
 ```
@@ -424,7 +345,22 @@ TAREFA 5 — Dijkstra: Menor Caminho
   Entrada → Visitante → Lead → Qualificado → Cliente
 
   Custo total: 1320
+
+==================================================
+TAREFA 6 — Comparação de Todos os Caminhos
+==================================================
+
+  Todos os caminhos de 'Entrada' até 'Cliente':
+
+  #    Caminho                                            Custo
+  -----------------------------------------------------------------
+  1    Entrada → Visitante → Lead → Qualificado → Cliente  1320   MENOR CAMINHO
+  -----------------------------------------------------------------
+
+  Total de caminhos encontrados: 1
 ```
+
+---
 
 ---
 
@@ -437,7 +373,7 @@ TAREFA 5 — Dijkstra: Menor Caminho
 | `@lru_cache` na agenda | Memoização automática do Python para subproblemas da programação dinâmica |
 | Grafo como dicionário de adjacência | Representação simples, legível e compatível com o algoritmo de Dijkstra |
 | Heap mínimo no Dijkstra | Garante complexidade O((V + E) log V), ideal para grafos esparsos como o funil CRM |
-| Python puro (sem dependências) | Portabilidade máxima; todos os módulos usados (`heapq`, `functools`) são da biblioteca padrão |
+| DFS em `todos_os_caminhos` | Permite enumerar todas as rotas possíveis sem estruturas externas; controle de ciclos via lista de caminho acumulado |
 
 ---
 
